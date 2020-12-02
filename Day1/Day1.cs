@@ -1,25 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Xunit;
+using Xunit.Abstractions;
 
-namespace Day1
+namespace AdventOfCode2020.Day1
 {
-    class Program
+    public class Day1
     {
-        static void Main(string[] args)
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public Day1(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
+        [Fact] 
+        public void Run1()
         {
             var listOfNumbers = ListOfNumbers();
             
             var result1 = listOfNumbers.SelectMany(m => listOfNumbers, (l1,l2) => new {sum = l1 + l2, product = l1 * l2})
                 .First(f => f.sum == 2020).product;
-            Console.WriteLine($"First result: {result1}");
+            _testOutputHelper.WriteLine($"Result: {result1}");
+        }
+
+        [Fact] 
+        public void Run2()
+        {
+            var listOfNumbers = ListOfNumbers();
             
             var result2 = listOfNumbers.SelectMany(m => listOfNumbers, (l1,l2) => new {sum = l1 + l2, product = l1 * l2})
                 .SelectMany(m2 => listOfNumbers, (previous,number) => new {sum = previous.sum + number, product = previous.product * number})
                 .First(f => f.sum == 2020).product;
-            Console.WriteLine($"Second result: {result2}");
+            _testOutputHelper.WriteLine($"Result: {result2}");
         }
-
+        
         private static List<int> ListOfNumbers()
         {
             return new List<int>() {
