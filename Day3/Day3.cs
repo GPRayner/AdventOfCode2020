@@ -15,19 +15,19 @@ namespace AdventOfCode2020.Day3
             _testOutputHelper = testOutputHelper;
         }
 
-        private static long GetCount(IEnumerable<string> lines, int width, int right, int down) => lines
+        private static long GetCount(IEnumerable<string> lines, int right, int down) => lines
             .Where((s, i) => i % down == 0)
-            .Select((row, i) => row.ElementAt(PickElement(i, width, right)))
+            .Select((row, i) => row.ElementAt(PickElement(i, row.Length, right)))
             .Count(c => c == '#');
 
-        private static int PickElement(int row, int width, int right) => ((row * right) - ((row * right / width) * width));
+        private static int PickElement(int row, int width, int right) => row * right % width;
 
         [Fact]
         public void RunPart1Example()
         {
             var lines = File.ReadAllLines("Day3/example.txt");
 
-            var count = GetCount(lines, lines.First().Length, 3, 1);
+            var count = GetCount(lines, 3, 1);
             Assert.Equal(7, count);
         }
 
@@ -36,8 +36,9 @@ namespace AdventOfCode2020.Day3
         {
             var lines = File.ReadAllLines("Day3/input.txt");
 
-            var count = GetCount(lines, lines.First().Length, 3, 1);
+            var count = GetCount(lines, 3, 1);
             _testOutputHelper.WriteLine($"Count: {count}");
+            Assert.Equal(162, count);
         }
 
         [Fact]
@@ -45,12 +46,11 @@ namespace AdventOfCode2020.Day3
         {
             var lines = File.ReadAllLines("Day3/example.txt");
 
-            var width = lines.First().Length;
-            var count1 = GetCount(lines, width, 1, 1);
-            var count2 = GetCount(lines, width, 3, 1);
-            var count3 = GetCount(lines, width, 5, 1);
-            var count4 = GetCount(lines, width, 7, 1);
-            var count5 = GetCount(lines, width, 1, 2);
+            var count1 = GetCount(lines, 1, 1);
+            var count2 = GetCount(lines, 3, 1);
+            var count3 = GetCount(lines, 5, 1);
+            var count4 = GetCount(lines, 7, 1);
+            var count5 = GetCount(lines, 1, 2);
 
             Assert.Equal(2, count1);
             Assert.Equal(7, count2);
@@ -65,40 +65,37 @@ namespace AdventOfCode2020.Day3
         {
             var lines = File.ReadAllLines("Day3/input.txt");
 
-            var width = lines.First().Length;
-            var count1 = GetCount(lines, width, 1, 1);
-            var count2 = GetCount(lines, width, 3, 1);
-            var count3 = GetCount(lines, width, 5, 1);
-            var count4 = GetCount(lines, width, 7, 1);
-            var count5 = GetCount(lines, width, 1, 2);
-            var product = count1 * count2 * count3 * count4 * count5;
+            var product = new[]
+            {
+                GetCount(lines, 1, 1),
+                GetCount(lines, 3, 1),
+                GetCount(lines, 5, 1),
+                GetCount(lines, 7, 1),
+                GetCount(lines, 1, 2)
+            }.Aggregate((a1, a2) => a1 * a2);
+
             _testOutputHelper.WriteLine($"Product: {product}");
+            Assert.Equal(3064612320, product);
         }
 
         [Theory]
-        [InlineData(0, 11, 0)]
-        [InlineData(1, 11, 3)]
-        [InlineData(2, 11, 6)]
-        [InlineData(3, 11, 9)]
-        [InlineData(4, 11, 1)]
-        [InlineData(5, 11, 4)]
-        [InlineData(6, 11, 7)]
-        [InlineData(7, 11, 10)]
-        [InlineData(8, 11, 2)]
-        public void TestPickElement(int row, int width, int expected)
+        [InlineData(0, 11, 3, 0)]
+        [InlineData(1, 11, 3, 3)]
+        [InlineData(2, 11, 3, 6)]
+        [InlineData(3, 11, 3, 9)]
+        [InlineData(4, 11, 3, 1)]
+        [InlineData(5, 11, 3, 4)]
+        [InlineData(6, 11, 3, 7)]
+        [InlineData(7, 11, 3, 10)]
+        [InlineData(8, 11, 3, 2)]
+        [InlineData(0, 11, 1, 0)]
+        [InlineData(1, 11, 1, 1)]
+        [InlineData(2, 11, 1, 2)]
+        [InlineData(3, 11, 1, 3)]
+        [InlineData(4, 11, 1, 4)]
+        public void TestPickElement(int row, int width, int right, int expected)
         {
-            Assert.Equal(expected, PickElement(row, width, 3));
-        }
-
-        [Theory]
-        [InlineData(0, 11, 0)]
-        [InlineData(1, 11, 1)]
-        [InlineData(2, 11, 2)]
-        [InlineData(3, 11, 3)]
-        [InlineData(4, 11, 4)]
-        public void TestPickElementDown2(int row, int width, int expected)
-        {
-            Assert.Equal(expected, PickElement(row, width, 1));
+            Assert.Equal(expected, PickElement(row, width, right));
         }
     }
 }
