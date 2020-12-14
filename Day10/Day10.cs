@@ -1,7 +1,6 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using AdventOfCode2020.Day9;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -34,7 +33,44 @@ namespace AdventOfCode2020.Day10
             Assert.Equal(2210, tracker.NumberOfOneJolts * tracker.NumberOfThreeJolts);
         }
 
-        private static JoltTracker NumberOfJolts(string file) => File.ReadAllLines(file).Select(int.Parse).OrderBy(o => o)
+        [Fact]
+        public void RunPart2Example()
+        {
+            var actual = GetResult("Day10/example.txt");
+            Assert.Equal(19208, actual);
+        }
+
+        [Fact]
+        public void RunPart2()
+        {
+            var result = GetResult("Day10/input.txt");
+
+            _testOutputHelper.WriteLine($"Count: {result}");
+        }
+
+        private static long GetResult(string file)
+        {
+            var lines = File.ReadAllLines(file).Select(int.Parse).OrderBy(o => o).ToList();
+            lines.Insert(0, 0);
+            lines.Add(lines.Last() + 3);
+
+            var routesCount = new Dictionary<int, long>
+            {
+                [0] = 1
+            };
+
+            foreach (var jolt in lines.Skip(1))
+            {
+                routesCount[jolt] = routesCount.GetValueOrDefault(jolt - 1) + 
+                                    routesCount.GetValueOrDefault(jolt - 2) +
+                                    routesCount.GetValueOrDefault(jolt - 3);
+            }
+            
+            return routesCount[lines.Last()];
+        }
+
+        private static JoltTracker NumberOfJolts(string file) => File.ReadAllLines(file).Select(int.Parse)
+            .OrderBy(o => o)
             .Aggregate(new JoltTracker(), (tracker, i) => tracker.Next(i));
 
         private class JoltTracker
@@ -55,6 +91,7 @@ namespace AdventOfCode2020.Day10
                 _previous = current;
                 return this;
             }
+
             public int NumberOfOneJolts { get; private set; } = 1;
             public int NumberOfThreeJolts { get; private set; } = 1;
         }
