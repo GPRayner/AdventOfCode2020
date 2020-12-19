@@ -46,11 +46,11 @@ namespace AdventOfCode2020.Day8
         public void RunPart2()
         {
             var accumulator = BruteForce("Day8/input.txt");
-            
+
             _testOutputHelper.WriteLine($"Accumulator: {accumulator}");
             Assert.Equal(1688, accumulator);
         }
-        
+
         private static int BruteForce(string file)
         {
             var commands = GetCommands(file);
@@ -58,7 +58,8 @@ namespace AdventOfCode2020.Day8
             var accumulator = 0;
             foreach (var cmd in commandsToSwitch)
             {
-                if (!TryGetAccumulator(i => cmd.Index == i ? cmd.SwitchedCommand() : commands.ElementAtOrDefault(i), out accumulator))
+                if (!TryGetAccumulator(i => cmd.Index == i ? cmd.SwitchedCommand() : commands.ElementAtOrDefault(i),
+                    out accumulator))
                 {
                     break;
                 }
@@ -67,7 +68,7 @@ namespace AdventOfCode2020.Day8
             return accumulator;
         }
 
-        private static bool TryGetAccumulator(Func<int, Cmd> getCommandAt, out int outAccumulator)
+        private static bool TryGetAccumulator(Func<int, Cmd?> getCommandAt, out int outAccumulator)
         {
             var visited = new HashSet<int>();
             var nextCommand = getCommandAt(0);
@@ -75,6 +76,9 @@ namespace AdventOfCode2020.Day8
             var accumulator = 0;
             while (true)
             {
+                if (nextCommand == null)
+                    break;
+                
                 if (visited.Contains(nextCommand.Index))
                 {
                     errored = true;
@@ -96,9 +100,6 @@ namespace AdventOfCode2020.Day8
                         nextCommand = GetNext(getCommandAt, nextCommand);
                         break;
                 }
-
-                if (nextCommand == null)
-                    break;
             }
 
             outAccumulator = accumulator;
@@ -110,16 +111,21 @@ namespace AdventOfCode2020.Day8
             return File.ReadLines(file).Select((s, i) => new Cmd(s, i)).ToArray();
         }
 
-        private static Cmd GetJump(Func<int, Cmd> getCommandAt, Cmd nextCommand) => getCommandAt(nextCommand.Index + nextCommand.Value);
-        private static Cmd GetNext(Func<int, Cmd> getCommandAt, Cmd nextCommand) => getCommandAt(nextCommand.Index + 1);
+        private static Cmd? GetJump(Func<int, Cmd?> getCommandAt, Cmd nextCommand) =>
+            getCommandAt(nextCommand.Index + nextCommand.Value);
+
+        private static Cmd? GetNext(Func<int, Cmd?> getCommandAt, Cmd nextCommand) => getCommandAt(nextCommand.Index + 1);
     }
 
     public class Cmd
     {
-        public Cmd SwitchedCommand() => new Cmd() {Command = Command == "nop" ? "jmp" : "nop", Value = this.Value, Index = this.Index};
+        public Cmd SwitchedCommand() => new Cmd(Command == "nop" ? "jmp" : "nop", value: this.Value, index: this.Index);
 
-        private Cmd()
+        private Cmd(string command, int value, int index)
         {
+            Command = command;
+            Value = value;
+            Index = index;
         }
 
         public Cmd(string input, int index)
@@ -130,9 +136,8 @@ namespace AdventOfCode2020.Day8
             Value = int.Parse(parts[1]);
         }
 
-        public int Index { get; set; }
-
-        public int Value { get; set; }
-        public string Command { get; set; }
+        public int Index { get; }
+        public int Value { get; }
+        public string Command { get; }
     }
 }

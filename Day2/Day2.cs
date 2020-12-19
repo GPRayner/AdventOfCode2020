@@ -53,7 +53,7 @@ namespace AdventOfCode2020.Day2
         {
             var validPasswords = ExtractValidPasswords2("Day2/example.txt").ToList();
 
-            Assert.Equal(1, validPasswords.Count);
+            Assert.Single(validPasswords);
             _testOutputHelper.WriteLine($"Valid passwords: {validPasswords.Count}");
         }
         

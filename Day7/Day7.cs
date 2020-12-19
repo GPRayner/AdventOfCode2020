@@ -69,7 +69,7 @@ namespace AdventOfCode2020.Day7
         public BagContents(string[] strings)
         {
             Name = strings.First().Trim().Replace(" ","_" );
-            Contains = strings.ElementAtOrDefault(1)?.Split(',').Select(s => s.Trim()).Where(w => !string.IsNullOrWhiteSpace(w))
+            Contains = strings.ElementAt(1).Split(',').Select(s => s.Trim()).Where(w => !string.IsNullOrWhiteSpace(w))
                 .ToDictionary(k => new string(k.Skip(2).ToArray()).Replace(" ", "_"), v => int.Parse(v.FirstOrDefault().ToString()));
         }
 
